@@ -1,0 +1,9 @@
+flask==3.1.0
+selenium==4.13.0
+beautifulsoup4==4.12.3
+webdriver-manager>=3.9.1
+python-dotenv==1.0.1 
+gunicorn==23.0.0
+flask-cors==5.0.0
+requests==2.31.0
+ 
