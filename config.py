@@ -37,7 +37,10 @@ class Config:
             os.environ.get("LOCALAPPDATA", tempfile.gettempdir()), "ChromeDriver"
         )
     else:
-        CHROME_BINARY_PATH = os.getenv('GOOGLE_CHROME_BIN', '/usr/bin/google-chrome')
+        # For Heroku and other Unix-like systems
+        CHROME_BINARY_PATH = os.getenv('GOOGLE_CHROME_SHIM') or \
+                            os.getenv('GOOGLE_CHROME_BIN') or \
+                            '/app/.apt/usr/bin/google-chrome'
         DRIVER_CACHE_PATH = "/tmp/webdriver"
 
     # Browser settings
