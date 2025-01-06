@@ -2,7 +2,7 @@ Flask==2.0.1
 Werkzeug==2.0.3
 selenium==4.13.0
 beautifulsoup4==4.12.3
-webdriver-manager==3.9.1
+webdriver-manager==4.0.0
 python-dotenv==1.0.1 
 gunicorn==20.1.0
 flask-cors==5.0.0
