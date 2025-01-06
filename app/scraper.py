@@ -25,8 +25,11 @@ class BrowserFactory:
                 options.add_argument("--disable-gpu")
                 options.add_argument("--window-size=1920,1080")
                 
-                # Windows-specific options
-                if platform.system() == "Windows":
+                if Config.IS_PRODUCTION:
+                    if not os.path.exists(Config.CHROME_BINARY_PATH):
+                        raise RuntimeError(f"Chrome binary not found at {Config.CHROME_BINARY_PATH}")
+                    options.binary_location = Config.CHROME_BINARY_PATH
+                elif platform.system() == "Windows":
                     options.add_experimental_option('excludeSwitches', ['enable-logging'])
                     if os.path.exists(Config.CHROME_BINARY_PATH):
                         options.binary_location = Config.CHROME_BINARY_PATH

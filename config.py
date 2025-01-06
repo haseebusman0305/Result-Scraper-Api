@@ -37,7 +37,7 @@ class Config:
             os.environ.get("LOCALAPPDATA", tempfile.gettempdir()), "ChromeDriver"
         )
     else:
-        CHROME_BINARY_PATH = "/usr/bin/google-chrome"
+        CHROME_BINARY_PATH = os.getenv('GOOGLE_CHROME_BIN', '/usr/bin/google-chrome')
         DRIVER_CACHE_PATH = "/tmp/webdriver"
 
     # Browser settings
