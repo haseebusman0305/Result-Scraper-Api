@@ -13,12 +13,9 @@ class Config:
     PORT = int(os.getenv("PORT", 5000))
     CHROME_TIMEOUT = int(os.getenv("CHROME_TIMEOUT", 30))
 
-    # Environment and paths
     IS_PRODUCTION = os.getenv("ENVIRONMENT", "development").lower() == "production"
 
-    # Windows-specific paths
     if platform.system() == "Windows":
-        # Try multiple possible Chrome locations
         CHROME_PATHS = [
             os.path.join(
                 os.environ.get("PROGRAMFILES", "C:\\Program Files"),

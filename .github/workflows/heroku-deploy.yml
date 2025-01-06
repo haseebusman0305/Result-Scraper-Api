@@ -15,14 +15,8 @@ jobs:
 
       - name: Install Heroku CLI
         run: |
-          sudo apt-get update
-          sudo apt-get install -y heroku
+          curl https://cli-assets.heroku.com/install.sh | sh
           
-      - name: Login to Heroku
-        env:
-          HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
-        run: heroku login -i
-
       - name: Deploy to Heroku
         env:
           HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
@@ -31,5 +25,7 @@ jobs:
           heroku git:remote -a $HEROKU_APP_NAME
           heroku buildpacks:clear
           heroku buildpacks:set heroku/python
+          heroku buildpacks:add --index 1 https://github.com/heroku/heroku-buildpack-google-chrome
           heroku config:set DISABLE_COLLECTSTATIC=1
+          heroku config:set CHROME_BINARY_PATH=/app/.apt/usr/bin/google-chrome
           git push heroku main --force
