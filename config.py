@@ -14,33 +14,16 @@ class Config:
     CHROME_TIMEOUT = int(os.getenv("CHROME_TIMEOUT", 30))
 
     IS_PRODUCTION = os.getenv("ENVIRONMENT", "development").lower() == "production"
+    IS_HEROKU = "DYNO" in os.environ
 
     if platform.system() == "Windows":
-        CHROME_PATHS = [
-            os.path.join(
-                os.environ.get("PROGRAMFILES", "C:\\Program Files"),
-                "Google\\Chrome\\Application\\chrome.exe",
-            ),
-            os.path.join(
-                os.environ.get("PROGRAMFILES(X86)", "C:\\Program Files (x86)"),
-                "Google\\Chrome\\Application\\chrome.exe",
-            ),
-            os.path.join(
-                os.environ.get("LOCALAPPDATA", ""),
-                "Google\\Chrome\\Application\\chrome.exe",
-            ),
-        ]
-        CHROME_BINARY_PATH = next(
-            (path for path in CHROME_PATHS if os.path.exists(path)), ""
-        )
+        CHROME_BINARY_PATH = ""  # Let selenium find it automatically
         DRIVER_CACHE_PATH = os.path.join(
             os.environ.get("LOCALAPPDATA", tempfile.gettempdir()), "ChromeDriver"
         )
     else:
-        # For Heroku and other Unix-like systems
-        CHROME_BINARY_PATH = os.getenv('GOOGLE_CHROME_SHIM') or \
-                            os.getenv('GOOGLE_CHROME_BIN') or \
-                            '/app/.apt/usr/bin/google-chrome'
+        CHROME_BINARY_PATH = os.getenv("GOOGLE_CHROME_BIN", "/app/.apt/usr/bin/google-chrome")
+        CHROME_DRIVER_PATH = os.getenv("CHROMEDRIVER_PATH", "/app/.chromedriver/bin/chromedriver")
         DRIVER_CACHE_PATH = "/tmp/webdriver"
 
     # Browser settings

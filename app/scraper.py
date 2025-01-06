@@ -25,39 +25,22 @@ class BrowserFactory:
                 options.add_argument("--disable-gpu")
                 options.add_argument("--window-size=1920,1080")
                 options.add_argument("--remote-debugging-port=9222")
-                
-                # Verify and set Chrome binary location
-                chrome_binary = Config.CHROME_BINARY_PATH
-                if not os.path.exists(chrome_binary):
-                    possible_paths = [
-                        '/app/.apt/usr/bin/google-chrome',
-                        '/app/.apt/opt/google/chrome/chrome',
-                        '/usr/bin/google-chrome',
-                    ]
-                    for path in possible_paths:
-                        if os.path.exists(path):
-                            chrome_binary = path
-                            break
-                    else:
-                        raise RuntimeError(f"Chrome binary not found in any standard location")
-                
-                options.binary_location = chrome_binary
-                logging.info(f"Using Chrome binary at: {chrome_binary}")
 
-                if Config.IS_PRODUCTION:
-                    if not os.path.exists(Config.CHROME_BINARY_PATH):
-                        raise RuntimeError(f"Chrome binary not found at {Config.CHROME_BINARY_PATH}")
+                if Config.IS_HEROKU:
                     options.binary_location = Config.CHROME_BINARY_PATH
-                elif platform.system() == "Windows":
-                    options.add_experimental_option('excludeSwitches', ['enable-logging'])
-                    if os.path.exists(Config.CHROME_BINARY_PATH):
-                        options.binary_location = Config.CHROME_BINARY_PATH
-
-                try:
-                    driver_manager = ChromeDriverManager()
+                    service = ChromeService(executable_path=Config.CHROME_DRIVER_PATH)
+                else:
+                    # Local development settings
+                    if platform.system() == "Windows":
+                        options.add_experimental_option('excludeSwitches', ['enable-logging'])
+                    driver_manager = ChromeDriverManager(cache_valid_range=7)
                     driver_path = driver_manager.install()
                     service = ChromeService(executable_path=driver_path)
-                    
+
+                logging.info(f"Chrome binary location: {options.binary_location}")
+                logging.info(f"ChromeDriver path: {service.path}")
+
+                try:
                     driver = webdriver.Chrome(
                         service=service,
                         options=options
