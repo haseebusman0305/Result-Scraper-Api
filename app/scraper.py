@@ -4,12 +4,15 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.service import Service as ChromeService
 from selenium.webdriver.chrome.options import Options as ChromeOptions
-from webdriver_manager.chrome import ChromeDriverManager
 from config import Config
 import logging
 import os
 import sys
 import platform
+
+# Only import ChromeDriverManager for local development
+if not Config.IS_HEROKU:
+    from webdriver_manager.chrome import ChromeDriverManager
 
 class BrowserFactory:
     @staticmethod
@@ -29,8 +32,10 @@ class BrowserFactory:
                 if Config.IS_HEROKU:
                     options.binary_location = Config.CHROME_BINARY_PATH
                     service = ChromeService(executable_path=Config.CHROME_DRIVER_PATH)
+                    logging.info("Using Heroku Chrome paths")
                 else:
                     service = ChromeService(executable_path=ChromeDriverManager().install())
+                    logging.info("Using local ChromeDriver")
 
                 logging.info(f"Chrome binary location: {options.binary_location}")
                 logging.info(f"ChromeDriver path: {service.path}")
