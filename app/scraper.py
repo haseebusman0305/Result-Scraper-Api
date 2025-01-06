@@ -45,7 +45,7 @@ class BrowserFactory:
                     raise
 
             else:
-                raise ValueError("Only Chrome browser is supported")
+                raise ValueError("Only Chrome browser is supported") 
                 
         except Exception as e:
             logging.error(f"Driver creation failed: {str(e)}")
