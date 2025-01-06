@@ -19,15 +19,14 @@ class BrowserFactory:
 
             if browser_type == "chrome":
                 options = ChromeOptions()
-                options.add_argument("--headless=new")
+                options.add_argument("--headless")
                 options.add_argument("--no-sandbox")
                 options.add_argument("--disable-dev-shm-usage")
                 options.add_argument("--disable-gpu")
                 options.add_argument("--window-size=1920,1080")
                 options.add_argument("--remote-debugging-port=9222")
 
-                if Config.IS_HEROKU:
-                    options.binary_location = Config.CHROME_BINARY_PATH
+                options.binary_location = os.environ.get("GOOGLE_CHROME_BIN", options.binary_location)
                 driver_path = ChromeDriverManager().install()
                 service = ChromeService(executable_path=driver_path)
 
