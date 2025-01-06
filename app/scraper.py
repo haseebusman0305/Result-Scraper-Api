@@ -27,29 +27,23 @@ class BrowserFactory:
                 options.add_argument("--disable-dev-shm-usage")
                 options.add_argument("--disable-gpu")
                 options.add_argument("--window-size=1920,1080")
-                options.add_argument("--remote-debugging-port=9222")
 
                 if Config.IS_HEROKU:
+                    logging.info("Setting up Chrome for Heroku")
                     options.binary_location = Config.CHROME_BINARY_PATH
                     service = ChromeService(executable_path=Config.CHROME_DRIVER_PATH)
-                    logging.info("Using Heroku Chrome paths")
+                    logging.info(f"Chrome binary: {Config.CHROME_BINARY_PATH}")
+                    logging.info(f"ChromeDriver: {Config.CHROME_DRIVER_PATH}")
                 else:
                     service = ChromeService(executable_path=ChromeDriverManager().install())
-                    logging.info("Using local ChromeDriver")
-
-                logging.info(f"Chrome binary location: {options.binary_location}")
-                logging.info(f"ChromeDriver path: {service.path}")
 
                 try:
-                    driver = webdriver.Chrome(
-                        service=service,
-                        options=options
-                    )
+                    driver = webdriver.Chrome(service=service, options=options)
                     return driver
                 except Exception as e:
                     logging.error(f"Chrome driver error: {str(e)}")
-                    logging.error(f"Options: {options.arguments}")
-                    logging.error(f"Binary location: {options.binary_location}")
+                    logging.error(f"Path exists - Binary: {os.path.exists(Config.CHROME_BINARY_PATH)}")
+                    logging.error(f"Path exists - Driver: {os.path.exists(Config.CHROME_DRIVER_PATH)}")
                     raise
 
             else:

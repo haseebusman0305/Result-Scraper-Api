@@ -23,8 +23,8 @@ class Config:
             os.environ.get("LOCALAPPDATA", tempfile.gettempdir()), "ChromeDriver"
         )
     else:
-        CHROME_BINARY_PATH = "/tmp/build/.chrome-for-testing/chrome-linux64/chrome"
-        CHROME_DRIVER_PATH = "/tmp/build/.chrome-for-testing/chromedriver-linux64/chromedriver"
+        CHROME_BINARY_PATH = "/app/.chrome-for-testing/chrome-linux64/chrome"
+        CHROME_DRIVER_PATH = "/app/.chrome-for-testing/chromedriver-linux64/chromedriver"
         DRIVER_CACHE_PATH = "/tmp/webdriver"
 
     # Browser settings
