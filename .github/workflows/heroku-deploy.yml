@@ -11,18 +11,25 @@ jobs:
     steps:
       - uses: actions/checkout@v2
         with:
-          fetch-depth: 0 
-      
-      - name: Login to Heroku Container Registry
+          fetch-depth: 0
+
+      - name: Install Heroku CLI
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y heroku
+          
+      - name: Login to Heroku
         env:
           HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
-        run: heroku container:login
-        
+        run: heroku login -i
+
       - name: Deploy to Heroku
         env:
           HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
           HEROKU_APP_NAME: ${{ secrets.HEROKU_APP_NAME }}
         run: |
-          git fetch --unshallow || true
-          git remote add heroku https://heroku:$HEROKU_API_KEY@git.heroku.com/$HEROKU_APP_NAME.git
-          git push heroku main
+          heroku git:remote -a $HEROKU_APP_NAME
+          heroku buildpacks:clear
+          heroku buildpacks:set heroku/python
+          heroku config:set DISABLE_COLLECTSTATIC=1
+          git push heroku main --force
