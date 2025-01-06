@@ -28,13 +28,8 @@ class BrowserFactory:
 
                 if Config.IS_HEROKU:
                     options.binary_location = Config.CHROME_BINARY_PATH
-                    service = ChromeService(executable_path=Config.CHROME_DRIVER_PATH)
-                else:
-                    # Local development settings
-                    if platform.system() == "Windows":
-                        options.add_experimental_option('excludeSwitches', ['enable-logging'])
-                    driver_path = ChromeDriverManager(path=Config.DRIVER_CACHE_PATH).install()
-                    service = ChromeService(executable_path=driver_path)
+                driver_path = ChromeDriverManager().install()
+                service = ChromeService(executable_path=driver_path)
 
                 logging.info(f"Chrome binary location: {options.binary_location}")
                 logging.info(f"ChromeDriver path: {service.path}")
