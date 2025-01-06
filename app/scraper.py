@@ -33,8 +33,7 @@ class BrowserFactory:
                     # Local development settings
                     if platform.system() == "Windows":
                         options.add_experimental_option('excludeSwitches', ['enable-logging'])
-                    driver_manager = ChromeDriverManager(cache_valid_range=7)
-                    driver_path = driver_manager.install()
+                    driver_path = ChromeDriverManager().install()
                     service = ChromeService(executable_path=driver_path)
 
                 logging.info(f"Chrome binary location: {options.binary_location}")
