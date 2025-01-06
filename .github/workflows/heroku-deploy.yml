@@ -22,10 +22,11 @@ jobs:
           HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
           HEROKU_APP_NAME: ${{ secrets.HEROKU_APP_NAME }}
         run: |
-          heroku git:remote -a $HEROKU_APP_NAME
+          git remote remove heroku || true
+          git remote add heroku "https://heroku:$HEROKU_API_KEY@git.heroku.com/$HEROKU_APP_NAME.git"
           heroku buildpacks:clear
           heroku buildpacks:set heroku/python
           heroku buildpacks:add --index 1 https://github.com/heroku/heroku-buildpack-google-chrome
           heroku config:set DISABLE_COLLECTSTATIC=1
           heroku config:set CHROME_BINARY_PATH=/app/.apt/usr/bin/google-chrome
-          git push heroku main --force
+          git push heroku main:main --force
