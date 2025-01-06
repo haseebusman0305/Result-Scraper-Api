@@ -26,9 +26,11 @@ class BrowserFactory:
                 options.add_argument("--window-size=1920,1080")
                 options.add_argument("--remote-debugging-port=9222")
 
-                options.binary_location = os.environ.get("GOOGLE_CHROME_BIN", options.binary_location)
-                driver_path = ChromeDriverManager().install()
-                service = ChromeService(executable_path=driver_path)
+                if Config.IS_HEROKU:
+                    options.binary_location = Config.CHROME_BINARY_PATH
+                    service = ChromeService(executable_path=Config.CHROME_DRIVER_PATH)
+                else:
+                    service = ChromeService(executable_path=ChromeDriverManager().install())
 
                 logging.info(f"Chrome binary location: {options.binary_location}")
                 logging.info(f"ChromeDriver path: {service.path}")
@@ -41,6 +43,8 @@ class BrowserFactory:
                     return driver
                 except Exception as e:
                     logging.error(f"Chrome driver error: {str(e)}")
+                    logging.error(f"Options: {options.arguments}")
+                    logging.error(f"Binary location: {options.binary_location}")
                     raise
 
             else:

@@ -18,12 +18,13 @@ class Config:
 
     if platform.system() == "Windows":
         CHROME_BINARY_PATH = ""  # Let selenium find it automatically
+        CHROME_DRIVER_PATH = ""
         DRIVER_CACHE_PATH = os.path.join(
             os.environ.get("LOCALAPPDATA", tempfile.gettempdir()), "ChromeDriver"
         )
     else:
-        CHROME_BINARY_PATH = os.getenv("GOOGLE_CHROME_BIN", "/app/.apt/usr/bin/google-chrome")
-        CHROME_DRIVER_PATH = os.getenv("CHROMEDRIVER_PATH", "/app/.chromedriver/bin/chromedriver")
+        CHROME_BINARY_PATH = "/tmp/build/.chrome-for-testing/chrome-linux64/chrome"
+        CHROME_DRIVER_PATH = "/tmp/build/.chrome-for-testing/chromedriver-linux64/chromedriver"
         DRIVER_CACHE_PATH = "/tmp/webdriver"
 
     # Browser settings
