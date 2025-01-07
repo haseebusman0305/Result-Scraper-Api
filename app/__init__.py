@@ -26,9 +26,12 @@ def create_app():
             r"/api/*": {
                 "origins": [
                     "https://uafcalculator.live",
+                    "https://www.uafcalculator.live",
                     "http://localhost:3000",
                 ],
                 "supports_credentials": False,
+                "methods": ["GET", "POST", "OPTIONS"],
+                "allow_headers": ["Content-Type", "Authorization"]
             }
         },
     )
