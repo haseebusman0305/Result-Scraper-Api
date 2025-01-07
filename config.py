@@ -17,15 +17,20 @@ class Config:
     IS_HEROKU = "DYNO" in os.environ
 
     if platform.system() == "Windows":
-        CHROME_BINARY_PATH = ""  # Let selenium find it automatically
+        CHROME_BINARY_PATH = "" 
         CHROME_DRIVER_PATH = ""
         DRIVER_CACHE_PATH = os.path.join(
             os.environ.get("LOCALAPPDATA", tempfile.gettempdir()), "ChromeDriver"
         )
     else:
-        CHROME_BINARY_PATH = "/app/.chrome-for-testing/chrome-linux64/chrome"
-        CHROME_DRIVER_PATH = "/app/.chrome-for-testing/chromedriver-linux64/chromedriver"
+        CHROME_BINARY_PATH = os.getenv(
+            "GOOGLE_CHROME_BIN",
+            "/app/.apt/usr/bin/google-chrome"
+        )
+        CHROME_DRIVER_PATH = os.getenv(
+            "CHROMEDRIVER_PATH",
+            "/app/.chromedriver/bin/chromedriver"
+        )
         DRIVER_CACHE_PATH = "/tmp/webdriver"
 
-    # Browser settings
     BROWSER_TYPE = "chrome"

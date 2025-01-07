@@ -10,7 +10,6 @@ import os
 import sys
 import platform
 
-# Only import ChromeDriverManager for local development
 if not Config.IS_HEROKU:
     from webdriver_manager.chrome import ChromeDriverManager
 
@@ -34,6 +33,10 @@ class BrowserFactory:
                     service = ChromeService(executable_path=Config.CHROME_DRIVER_PATH)
                     logging.info(f"Chrome binary: {Config.CHROME_BINARY_PATH}")
                     logging.info(f"ChromeDriver: {Config.CHROME_DRIVER_PATH}")
+                    
+                    options.add_argument("--remote-debugging-port=9222")
+                    options.add_argument('--disable-blink-features=AutomationControlled')
+                    options.add_argument("--disable-extensions")
                 else:
                     service = ChromeService(executable_path=ChromeDriverManager().install())
 
