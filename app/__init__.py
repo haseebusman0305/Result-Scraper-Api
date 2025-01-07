@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, send_from_directory
 from flask_cors import CORS
 import os
 from config import Config
@@ -22,13 +22,26 @@ def create_app():
         resources={
             r"/api/*": {
                 "origins": [
-                    "https://uaf-cgpa-frontend.azurewebsites.net",
+                    "https://uafcalculator.live",
                     "http://localhost:3000",
                 ],
                 "supports_credentials": False,
             }
         },
     )
+
+    # Root endpoint
+    @app.route('/')
+    def index():
+        return {
+            'status': 'online',
+            'message': 'UAF Calculator API is running'
+        }
+
+    # Favicon handler
+    @app.route('/favicon.ico')
+    def favicon():
+        return '', 204
 
     # Register blueprints
     app.register_blueprint(api, url_prefix="/api")
