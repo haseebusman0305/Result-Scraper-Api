@@ -8,16 +8,15 @@ import traceback
 
 logger = logging.getLogger(__name__)
 
-
 def create_app():
     app = Flask(__name__)
 
-    # Load configuration
+    # Load configuration from Config class
     app.config.update(
-        DEBUG=os.getenv("DEBUG", "False").lower() == "true",
-        ENVIRONMENT=os.getenv("ENVIRONMENT", "production"),
-        HOST=os.getenv("HOST", "0.0.0.0"),
-        PORT=int(os.getenv("PORT", 8000)),
+        DEBUG=Config.DEBUG,
+        ENVIRONMENT=Config.ENVIRONMENT,
+        HOST=Config.HOST,
+        PORT=Config.PORT,
     )
 
     # Enable CORS
@@ -35,14 +34,17 @@ def create_app():
     )
 
     # Root endpoint
-    @app.route("/")
+    @app.route('/')
     def index():
-        return {"status": "online", "message": "UAF Calculator API is running"}
+        return {
+            'status': 'online',
+            'message': 'UAF Calculator API is running'
+        }
 
     # Favicon handler
-    @app.route("/favicon.ico")
+    @app.route('/favicon.ico')
     def favicon():
-        return "", 204
+        return '', 204
 
     # Register blueprints
     app.register_blueprint(api, url_prefix="/api")
@@ -51,7 +53,10 @@ def create_app():
     def handle_error(error):
         logger.error(f"Unhandled error: {str(error)}")
         logger.error(f"Full traceback: {traceback.format_exc()}")
-        return {"error": str(error), "status": "error"}, 500
+        return {
+            'error': str(error),
+            'status': 'error'
+        }, 500
 
     # Log startup information
     logger.info(f"Application starting in {app.config['ENVIRONMENT']} mode")
