@@ -3,6 +3,10 @@ from flask_cors import CORS
 import os
 from config import Config
 from .api import api
+import logging
+import traceback
+
+logger = logging.getLogger(__name__)
 
 
 def create_app():
@@ -31,19 +35,26 @@ def create_app():
     )
 
     # Root endpoint
-    @app.route('/')
+    @app.route("/")
     def index():
-        return {
-            'status': 'online',
-            'message': 'UAF Calculator API is running'
-        }
+        return {"status": "online", "message": "UAF Calculator API is running"}
 
     # Favicon handler
-    @app.route('/favicon.ico')
+    @app.route("/favicon.ico")
     def favicon():
-        return '', 204
+        return "", 204
 
     # Register blueprints
     app.register_blueprint(api, url_prefix="/api")
+
+    @app.errorhandler(Exception)
+    def handle_error(error):
+        logger.error(f"Unhandled error: {str(error)}")
+        logger.error(f"Full traceback: {traceback.format_exc()}")
+        return {"error": str(error), "status": "error"}, 500
+
+    # Log startup information
+    logger.info(f"Application starting in {app.config['ENVIRONMENT']} mode")
+    logger.info(f"Debug mode: {app.config['DEBUG']}")
 
     return app

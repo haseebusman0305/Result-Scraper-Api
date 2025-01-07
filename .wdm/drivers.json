@@ -2,5 +2,9 @@
     "win64_chromedriver_131.0.6778.204_for_131.0.6778": {
         "timestamp": "07/01/2025",
         "binary_path": "C:\\Users\\hasee\\Desktop\\caclulator-api\\.wdm\\drivers\\chromedriver\\win64\\131.0.6778.204\\chromedriver-win32/chromedriver.exe"
+    },
+    "win64_chromedriver_131.0.6778.205_for_131.0.6778.205": {
+        "timestamp": "08/01/2025",
+        "binary_path": "C:\\Users\\hasee\\Desktop\\caclulator-api\\.wdm\\drivers\\chromedriver\\win64\\131.0.6778.205\\chromedriver-win32/THIRD_PARTY_NOTICES.chromedriver"
     }
 }
