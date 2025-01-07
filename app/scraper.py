@@ -114,4 +114,3 @@ class UAFScraper:
                     logger.info("Driver closed successfully")
                 except Exception as e:
                     logger.error(f"Error closing driver: {str(e)}")
-
