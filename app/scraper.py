@@ -13,6 +13,7 @@ import sys
 import platform
 import traceback
 import glob
+from selenium.common.exceptions import TimeoutException, WebDriverException
 
 logger = logging.getLogger(__name__)
 
@@ -73,44 +74,72 @@ class BrowserFactory:
 class UAFScraper:
     def __init__(self):
         self.browser_type = Config.BROWSER_TYPE
+        self.max_retries = 3
+        self.retry_delay = 2  # seconds
 
     def get_result_html(self, reg_number):
-        driver = None
-        try:
-            logger.info(f"Attempting to scrape results for reg number: {reg_number}")
-            driver = BrowserFactory.create_driver(self.browser_type)
-            driver.set_page_load_timeout(Config.CHROME_TIMEOUT)
-            driver.set_script_timeout(Config.CHROME_TIMEOUT)
+        last_exception = None
+        for attempt in range(self.max_retries):
+            driver = None
+            try:
+                logger.info(f"Attempt {attempt + 1}/{self.max_retries} to scrape results for reg number: {reg_number}")
+                driver = BrowserFactory.create_driver(self.browser_type)
+                driver.set_page_load_timeout(Config.CHROME_TIMEOUT)
+                driver.set_script_timeout(Config.CHROME_TIMEOUT)
 
-            logger.info("Loading URL...")
-            driver.get("http://lms.uaf.edu.pk/login/index.php")
+                logger.info("Loading URL...")
+                driver.get("http://lms.uaf.edu.pk/login/index.php")
 
-            logger.info("Waiting for input field...")
-            reg_input = WebDriverWait(driver, Config.CHROME_TIMEOUT).until(
-                EC.presence_of_element_located((By.ID, "REG"))
-            )
+                logger.info("Waiting for input field...")
+                reg_input = WebDriverWait(driver, Config.CHROME_TIMEOUT).until(
+                    EC.presence_of_element_located((By.ID, "REG"))
+                )
 
-            logger.info("Entering registration number...")
-            reg_input.send_keys(reg_number)
+                logger.info("Entering registration number...")
+                reg_input.send_keys(reg_number)
 
-            logger.info("Clicking submit button...")
-            submit_button = driver.find_element(
-                By.XPATH, "//input[@type='submit'][@value='Result']"
-            )
-            submit_button.click()
+                logger.info("Waiting for submit button...")
+                submit_button = WebDriverWait(driver, Config.CHROME_TIMEOUT).until(
+                    EC.element_to_be_clickable((By.XPATH, "//input[@type='submit'][@value='Result']"))
+                )
 
-            logger.info("Successfully retrieved page source")
-            return driver.page_source
+                logger.info("Clicking submit button...")
+                submit_button.click()
 
-        except Exception as e:
-            logger.error(f"Scraping error for reg number {reg_number}: {str(e)}")
-            logger.error(f"Full traceback: {traceback.format_exc()}")
-            logger.error(f"System info: {sys.platform}, Python: {sys.version}")
-            raise
-        finally:
-            if driver:
-                try:
-                    driver.quit()
-                    logger.info("Driver closed successfully")
-                except Exception as e:
-                    logger.error(f"Error closing driver: {str(e)}")
+                # Wait for result content to load
+                WebDriverWait(driver, Config.CHROME_TIMEOUT).until(
+                    lambda d: len(d.page_source) > 500  # Basic check for content load
+                )
+
+                page_source = driver.page_source
+                if "Result Not Found" in page_source or len(page_source.strip()) < 500:
+                    raise ValueError("No valid result content found")
+
+                logger.info("Successfully retrieved page source")
+                return page_source
+
+            except TimeoutException as e:
+                last_exception = e
+                logger.warning(f"Timeout on attempt {attempt + 1}: {str(e)}")
+            except WebDriverException as e:
+                last_exception = e
+                logger.warning(f"WebDriver error on attempt {attempt + 1}: {str(e)}")
+            except Exception as e:
+                last_exception = e
+                logger.error(f"Unexpected error on attempt {attempt + 1}: {str(e)}")
+                logger.error(f"Full traceback: {traceback.format_exc()}")
+            finally:
+                if driver:
+                    try:
+                        driver.quit()
+                        logger.info("Driver closed successfully")
+                    except Exception as e:
+                        logger.error(f"Error closing driver: {str(e)}")
+
+            # Wait before retrying
+            if attempt < self.max_retries - 1:
+                import time
+                time.sleep(self.retry_delay)
+
+        # If all retries failed, raise the last exception
+        raise last_exception or Exception("Failed to fetch result after all retries")

@@ -7,7 +7,6 @@ import sys
 
 load_dotenv()
 
-# Enhanced logging configuration
 logging.basicConfig(
     level=logging.DEBUG if os.getenv("DEBUG", "False").lower() == "true" else logging.INFO,
     format='%(asctime)s [%(levelname)s] [%(name)s:%(lineno)d] %(message)s',
@@ -33,7 +32,7 @@ class Config:
     
     # Browser settings
     BROWSER_TYPE = "chrome"
-    CHROME_TIMEOUT = int(os.getenv("CHROME_TIMEOUT", 30))
+    CHROME_TIMEOUT = int(os.getenv("CHROME_TIMEOUT", 45))
     
     # Chrome paths and settings
     if IS_WINDOWS:
