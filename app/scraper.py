@@ -136,10 +136,8 @@ class UAFScraper:
                     except Exception as e:
                         logger.error(f"Error closing driver: {str(e)}")
 
-            # Wait before retrying
             if attempt < self.max_retries - 1:
                 import time
                 time.sleep(self.retry_delay)
 
-        # If all retries failed, raise the last exception
         raise last_exception or Exception("Failed to fetch result after all retries")
