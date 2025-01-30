@@ -19,8 +19,32 @@ logger = logging.getLogger(__name__)
 
 class BrowserFactory:
     @staticmethod
+    def validate_heroku_environment():
+        if Config.IS_HEROKU:
+            logger.info("Validating Heroku environment...")
+            # Validate Chrome binary
+            if not os.path.exists(Config.CHROME_BINARY_PATH):
+                raise RuntimeError(f"Chrome binary not found at {Config.CHROME_BINARY_PATH}")
+            logger.info(f"Chrome binary found at {Config.CHROME_BINARY_PATH}")
+            
+            # Validate ChromeDriver
+            if not os.path.exists(Config.CHROME_DRIVER_PATH):
+                raise RuntimeError(f"ChromeDriver not found at {Config.CHROME_DRIVER_PATH}")
+            logger.info(f"ChromeDriver found at {Config.CHROME_DRIVER_PATH}")
+            
+            # Log system information
+            logger.info("Heroku environment details:")
+            logger.info(f"OS: {platform.system()} {platform.version()}")
+            logger.info(f"Python version: {sys.version}")
+            logger.info(f"Working directory: {os.getcwd()}")
+            logger.info(f"Directory contents: {os.listdir('.')}")
+
+    @staticmethod
     def create_driver(browser_type):
         try:
+            # Validate environment first
+            BrowserFactory.validate_heroku_environment()
+            
             os.makedirs(Config.DRIVER_CACHE_PATH, exist_ok=True)
 
             if browser_type == "chrome":
@@ -33,6 +57,13 @@ class BrowserFactory:
                 
                 if Config.IS_HEROKU:
                     logger.info("Setting up Chrome for Heroku")
+                    logger.info(f"Chrome binary path: {Config.CHROME_BINARY_PATH}")
+                    logger.info(f"Chrome driver path: {Config.CHROME_DRIVER_PATH}")
+                    
+                    # Test file permissions
+                    logger.info(f"Chrome binary permissions: {oct(os.stat(Config.CHROME_BINARY_PATH).st_mode)[-3:]}")
+                    logger.info(f"ChromeDriver permissions: {oct(os.stat(Config.CHROME_DRIVER_PATH).st_mode)[-3:]}")
+                    
                     options.binary_location = Config.CHROME_BINARY_PATH
                     service = ChromeService(executable_path=Config.CHROME_DRIVER_PATH)
                 else:
@@ -56,12 +87,15 @@ class BrowserFactory:
                 try:
                     driver = webdriver.Chrome(service=service, options=options)
                     logger.info("Chrome driver created successfully")
+                    # Verify driver is working
+                    driver.get("about:blank")
+                    logger.info("Driver successfully loaded blank page")
                     return driver
                 except Exception as e:
-                    logger.error(f"Chrome driver error: {str(e)}")
-                    logger.error(f"Platform: {platform.system()}")
-                    logger.error(f"Chrome binary exists: {os.path.exists(Config.CHROME_BINARY_PATH)}")
-                    logger.error(f"Chrome driver exists: {os.path.exists(driver_path)}")
+                    logger.error("Chrome driver creation failed")
+                    logger.error(f"Error type: {type(e).__name__}")
+                    logger.error(f"Error message: {str(e)}")
+                    logger.error(f"Stack trace: {traceback.format_exc()}")
                     raise
 
             else:
@@ -69,6 +103,34 @@ class BrowserFactory:
                 
         except Exception as e:
             logging.error(f"Driver creation failed: {str(e)}")
+            raise
+
+    @staticmethod
+    def setup_chrome():
+        logging.info("Setting up ChromeDriver")
+        options = webdriver.ChromeOptions()
+        options.add_argument('--headless')
+        options.add_argument('--no-sandbox')
+        options.add_argument('--disable-dev-shm-usage')
+        
+        try:
+            from sys import platform
+            if platform == "darwin":  # macOS
+                # Use ChromeDriver Manager with specific settings for macOS
+                from selenium.webdriver.chrome.service import Service
+                from webdriver_manager.chrome import ChromeDriverManager
+                from webdriver_manager.core.os_manager import ChromeType
+                
+                service = Service(ChromeDriverManager(chrome_type=ChromeType.CHROMIUM).install())
+                driver = webdriver.Chrome(service=service, options=options)
+            else:
+                # Default setup for other platforms
+                driver = webdriver.Chrome(options=options)
+            
+            return driver
+        except Exception as e:
+            logging.error(f"Chrome driver error: {str(e)}")
+            logging.error(f"Platform: {platform}")
             raise
 
 class UAFScraper:
